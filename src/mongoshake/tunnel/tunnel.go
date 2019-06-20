@@ -174,7 +174,7 @@ func (factory *WriterFactory) Create(address []string, workerId uint32) Writer {
 func (factory *ReaderFactory) Create(address string) Reader {
 	switch factory.Name {
 	case "kafka":
-		return &KafkaReader{address: address}
+		return &KafkaClusterReader{address: address}
 	case "tcp":
 		return &TCPReader{listenAddress: address}
 	case "rpc":

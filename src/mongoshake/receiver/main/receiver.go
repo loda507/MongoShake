@@ -1,20 +1,20 @@
 // this is an receiver example connect to different tunnels
 package main
 
-import(
+import (
 	"flag"
 	"fmt"
-	"os"
-
 	"mongoshake/common"
 	"mongoshake/receiver/configure"
 	"mongoshake/tunnel"
+	"os"
+	"os/signal"
 
-	LOG "github.com/vinllen/log4go"
-	"github.com/gugemichael/nimo4go"
 	"errors"
-	"syscall"
+	"github.com/gugemichael/nimo4go"
+	LOG "github.com/vinllen/log4go"
 	"mongoshake/receiver"
+	"syscall"
 )
 
 type Exit struct {Code int}
@@ -56,10 +56,14 @@ func main() {
 	nimo.RegisterSignalForPrintStack(syscall.SIGUSR1, func(bytes []byte) {
 		LOG.Info(string(bytes))
 	})
+	startup(conf.Options.Target)
 
-	startup()
-
-	select{}
+	for {
+		signals := make(chan os.Signal, 1)
+		signal.Notify(signals, os.Interrupt)
+		<- signals
+		os.Exit(1)
+	}
 }
 
 func sanitizeOptions() error {
@@ -73,7 +77,7 @@ func sanitizeOptions() error {
 }
 
 // this is the main connector function
-func startup() {
+func startup(targetAddress string) {
 	factory := tunnel.ReaderFactory{Name: conf.Options.Tunnel}
 	reader := factory.Create(conf.Options.TunnelAddress)
 	if reader == nil {
@@ -86,8 +90,10 @@ func startup() {
 	 * sent to is determined in the collector side: `TMessage.Shard`.
 	 */
 	repList := make([]tunnel.Replayer, conf.Options.ReplayerNum)
+	topic, brokers, _ := conf.ParseTarget(targetAddress)
 	for i := range repList {
-		repList[i] = replayer.NewExampleReplayer()
+		//repList[i] = replayer.NewExampleReplayer()
+		repList[i], _ = replayer.NewKafkaReplayer(brokers, topic)
 	}
 
 	LOG.Info("receiver is starting...")

@@ -52,12 +52,13 @@ func (tunnel *KafkaWriter) Send(message *WMessage) int64 {
 		binary.Write(byteBuffer, binary.BigEndian, uint32(len(log)))
 		binary.Write(byteBuffer, binary.BigEndian, log)
 	}
-
 	err := tunnel.writer.SimpleWrite(byteBuffer.Bytes())
 
 	if err != nil {
-		LOG.Error("KafkaWriter send[%v] error[%v]", tunnel.RemoteAddr, err)
-		return ReplyError
+		LOG.Error("size:[%v], len:[%v]", len(byteBuffer.Bytes()), len(message.RawLogs))
+		LOG.Error("KafkaWriter send[%v][%v] to [%v] error[%v]", message.ParsedLogs[0].Namespace, message.ParsedLogs[0].Query, tunnel.RemoteAddr, err)
+		// TODO(shushi): 如果存在超过M的数据，写入失败继续
+		return 0
 	}
 
 	// KafkaWriter.AckRequired() is always false, return 0 directly

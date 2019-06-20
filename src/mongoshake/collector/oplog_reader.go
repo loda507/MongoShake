@@ -96,7 +96,6 @@ func (reader *OplogReader) NextOplog() (log *oplog.GenericOplog, err error) {
 	if raw, err = reader.Next(); err != nil {
 		return nil, err
 	}
-
 	log = &oplog.GenericOplog{Raw: raw.Data, Parsed: new(oplog.PartialLog)}
 	bson.Unmarshal(raw.Data, log.Parsed)
 	return log, nil

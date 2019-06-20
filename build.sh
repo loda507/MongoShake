@@ -69,9 +69,9 @@ for i in "${modules[@]}" ; do
 	fi
 
 	# execute and show compile messages
-	if [ -f ${output}/"$i" ];then
-		${output}/"$i"
-	fi
+	# if [ -f ${output}/"$i" ];then
+	#	${output}/"$i"
+	# fi
 done
 
 # *.sh

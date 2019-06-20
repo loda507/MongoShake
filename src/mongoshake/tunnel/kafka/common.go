@@ -29,7 +29,9 @@ type Config struct {
 
 func NewConfig() *Config {
 	config := sarama.NewConfig()
-	config.Version = sarama.V0_10_0_0
+	// Mongo 最大支持16M
+	config.Producer.MaxMessageBytes = 16777216
+	config.Version = sarama.V2_0_0_0
 	config.MetricRegistry = metrics.NewRegistry()
 
 	config.Producer.Return.Errors = true

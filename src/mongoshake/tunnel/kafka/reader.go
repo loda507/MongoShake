@@ -14,14 +14,14 @@ type Reader struct {
 }
 
 func NewReader(address string) (*Reader, error) {
-	// c := NewConfig()
+	config := sarama.NewConfig()
 
 	topic, brokers, err := parse(address)
 	if err != nil {
 		return nil, err
 	}
 
-	consumer, err := sarama.NewConsumer(brokers, nil)
+	consumer, err := sarama.NewConsumer(brokers, config)
 	if err != nil {
 		return nil, err
 	}

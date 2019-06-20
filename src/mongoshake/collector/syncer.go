@@ -382,7 +382,6 @@ func (batcher *Batcher) getLastOplog() *oplog.PartialLog {
 func (batcher *Batcher) filter(log *oplog.PartialLog) bool {
 	// filter oplog suchlike Noop or Gid-filtered
 	if batcher.filterList.IterateFilter(log) {
-		LOG.Debug("Oplog is filtered. %v", log)
 		batcher.syncer.replMetric.AddFilter(1)
 		return true
 	}

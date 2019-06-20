@@ -104,7 +104,7 @@ func (exec *Executor) execute(group *OplogsGroup) error {
 				LOG.Info("Discard known error %v, It's acceptable", err)
 				err = nil
 			}
-
+			return nil
 			if err != nil {
 				LOG.Critical("Replayer-%d, executor-%d, oplog for [%s] op[%s] failed. (%v) [%v], logs %d. firstLog %v",
 					exec.batchExecutor.ReplayerId, exec.id, group.ns, group.op, reflect.TypeOf(err), err.Error(), count,

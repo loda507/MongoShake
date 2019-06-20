@@ -3,7 +3,6 @@ package tunnel
 import (
 	"bytes"
 	"encoding/binary"
-
 	"mongoshake/tunnel/kafka"
 
 	LOG "github.com/vinllen/log4go"
@@ -78,7 +77,6 @@ func (tunnel *KafkaReader) replay() {
 				// user can add the ack mechanism so that send ack
 				// to kafka to move kafka offset forward. We don't offer this
 				// code in current open source version.
-
 				// tunnel.reader.Ack(context)
 			}
 		}(message)) < 0 {
