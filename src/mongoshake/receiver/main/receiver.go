@@ -26,7 +26,7 @@ func main() {
 
 	// argument options
 	configuration := flag.String("conf", "", "configure file absolute path")
-	verbose := flag.Bool("verbose", false, "show logs on console")
+	//verbose := flag.Bool("verbose", false, "show logs on console")
 	flag.Parse()
 
 	if *configuration == "" {
@@ -50,7 +50,8 @@ func main() {
 		crash(fmt.Sprintf("Conf.Options check failed: %s", err.Error()), -4)
 	}
 
-	utils.InitialLogger(conf.Options.LogFileName, conf.Options.LogLevel, conf.Options.LogBuffer, *verbose)
+	//utils.InitialLogger(conf.Options.LogFileName, conf.Options.LogLevel, conf.Options.LogBuffer, *verbose)
+	utils.InitialConsoleLogger(conf.Options.LogLevel)
 	nimo.Profiling(int(conf.Options.SystemProfile))
 	nimo.RegisterSignalForProfiling(syscall.SIGUSR2)
 	nimo.RegisterSignalForPrintStack(syscall.SIGUSR1, func(bytes []byte) {

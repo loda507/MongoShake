@@ -72,11 +72,19 @@ func InitialLogger(logFile string, level string, logBuffer bool, verbose bool) b
 			LOG.LogBufferLength = 0
 		}
 		fileLogger := LOG.NewFileLogWriter(fmt.Sprintf("logs/%s", logFile), true)
-		fileLogger.SetRotateDaily(true)
-		fileLogger.SetFormat("[%D %T] [%L] [%s] %M")
-		fileLogger.SetRotateMaxBackup(7)
+		fileLogger.SetRotateSize(5 * 1024 * 1024)
+		fileLogger.SetFormat("[%D %T] [%L] [%S] [%s] [] %M")
+		fileLogger.SetRotateMaxBackup(10)
 		LOG.AddFilter("file", logLevel, fileLogger)
 	}
+	return true
+}
+
+func InitialConsoleLogger(level string) bool {
+	logLevel := parseLogLevel(level)
+	consoleLogger := LOG.NewConsoleLogWriter()
+	consoleLogger.SetFormat("[%D %T] [%L] [%S] [%s] [] %M")
+	LOG.AddFilter("console", logLevel, consoleLogger)
 	return true
 }
 

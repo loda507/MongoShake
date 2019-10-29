@@ -3,6 +3,7 @@ package tunnel
 import (
 	"bytes"
 	"encoding/binary"
+	"mongoshake/metrics"
 
 	"mongoshake/tunnel/kafka"
 
@@ -55,12 +56,14 @@ func (tunnel *KafkaWriter) Send(message *WMessage) int64 {
 	err := tunnel.writer.SimpleWrite(byteBuffer.Bytes())
 
 	if err != nil {
+		metrics.AddCollectFailed(message.ParsedLogs[0].Namespace, len(message.RawLogs))
 		LOG.Error("size:[%v], len:[%v]", len(byteBuffer.Bytes()), len(message.RawLogs))
 		LOG.Error("KafkaWriter send[%v][%v] to [%v] error[%v]", message.ParsedLogs[0].Namespace, message.ParsedLogs[0].Query, tunnel.RemoteAddr, err)
 		// TODO(shushi): 如果存在超过M的数据，写入失败继续
 		return 0
 	}
 
+	metrics.AddCollectSuccess(message.ParsedLogs[0].Namespace, len(message.RawLogs))
 	// KafkaWriter.AckRequired() is always false, return 0 directly
 	return 0
 }

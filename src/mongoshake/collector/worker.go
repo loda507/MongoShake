@@ -9,8 +9,8 @@ import (
 	"mongoshake/oplog"
 	"mongoshake/tunnel"
 
-	LOG "github.com/vinllen/log4go"
 	"github.com/gugemichael/nimo4go"
+	LOG "github.com/vinllen/log4go"
 )
 
 const MaxUnAckListLength = 128 * 256

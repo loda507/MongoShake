@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"mongoshake/metrics"
 	"time"
 
 	"mongoshake/collector/ckpt"
@@ -209,6 +210,7 @@ func (sync *OplogSyncer) deserializer(index int) {
 		for _, rawLog := range batchRawLogs {
 			log := new(oplog.PartialLog)
 			bson.Unmarshal(rawLog.Data, log)
+			LOG.Info("采集到oplog: %v", log)
 			deserializeLogs = append(deserializeLogs, &oplog.GenericOplog{Raw: rawLog.Data, Parsed: log})
 		}
 		sync.logsQueue[index] <- deserializeLogs
@@ -266,6 +268,7 @@ func (sync *OplogSyncer) next() bool {
 	if log, err = sync.reader.Next(); log != nil {
 		payload := int64(len(log.Data))
 		sync.replMetric.AddGet(1)
+		metrics.AddCollectGet(conf.Options.CollectorId)
 		sync.replMetric.SetOplogMax(payload)
 		sync.replMetric.SetOplogAvg(payload)
 		sync.replMetric.ReplStatus.Clear(utils.FetchBad)

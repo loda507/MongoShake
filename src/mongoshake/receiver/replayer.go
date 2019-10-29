@@ -2,6 +2,7 @@ package replayer
 
 import(
 	"encoding/json"
+	"mongoshake/metrics"
 	"mongoshake/receiver/configure"
 	"mongoshake/tunnel"
 	"mongoshake/modules"
@@ -274,9 +275,12 @@ func (er *KafkaReplayer) handler() {
 				Value:     sarama.ByteEncoder(msg),
 			}
 			partition, offset, err := er.producer.SendMessage(kafkaMsg)
-			LOG.Info("send-msg: %v, topic: %v, partition: %v, offset: %v", string(msg), er.topic, partition, offset)
 			if err != nil {
-				LOG.Error("send msg failed, msg: %v, error: %v", kafkaMsg, err.Error())
+				LOG.Info("发送数据失败: partition: %v, offset: %v, msg: %v", partition, offset, opKafkaLog)
+				metrics.AddReceiveFailed(opKafkaLog.Namespace)
+			} else {
+				LOG.Error("发送数据成功: partition: %v, offset: %v, msg: %v", partition, offset, opKafkaLog)
+				metrics.AddReceiveSuccess(opKafkaLog.Namespace)
 			}
 			//LOG.Error(oplogs[i]) // just print for test
 		}

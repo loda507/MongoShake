@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"syscall"
 
@@ -16,12 +17,13 @@ import (
 	"mongoshake/oplog"
 	"mongoshake/quorum"
 
-	LOG "github.com/vinllen/log4go"
 	"github.com/gugemichael/nimo4go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	LOG "github.com/vinllen/log4go"
 	"github.com/vinllen/mgo/bson"
 )
 
-type Exit struct {Code int}
+type Exit struct{ Code int }
 
 func main() {
 	var err error
@@ -31,7 +33,7 @@ func main() {
 
 	// argument options
 	configuration := flag.String("conf", "", "configure file absolute path")
-	verbose := flag.Bool("verbose", false, "show logs on console")
+	//verbose := flag.Bool("verbose", false, "show logs on console")
 	flag.Parse()
 
 	if *configuration == "" {
@@ -55,7 +57,8 @@ func main() {
 		crash(fmt.Sprintf("Conf.Options check failed: %s", err.Error()), -4)
 	}
 
-	utils.InitialLogger(conf.Options.LogFileName, conf.Options.LogLevel, conf.Options.LogBuffer, *verbose)
+	//utils.InitialLogger(conf.Options.LogFileName, conf.Options.LogLevel, conf.Options.LogBuffer, *verbose)
+	utils.InitialConsoleLogger(conf.Options.LogLevel)
 	nimo.Profiling(int(conf.Options.SystemProfile))
 	nimo.RegisterSignalForProfiling(syscall.SIGUSR2)
 	nimo.RegisterSignalForPrintStack(syscall.SIGUSR1, func(bytes []byte) {
@@ -67,6 +70,10 @@ func main() {
 	if utils.WritePidById(conf.Options.CollectorId) {
 		startup()
 	}
+
+	// prometheus
+	http.Handle("/metrics", promhttp.Handler())
+	LOG.Critical(http.ListenAndServe(":8080", nil))
 }
 
 func startup() {
